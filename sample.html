@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub User Search</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+
+  <main class="bg-white w-full max-w-md p-8 rounded-xl shadow-lg">
+    <h1 class="text-2xl font-bold text-center mb-6">
+      GitHub User Search
+    </h1>
+
+    <div class="flex gap-2 mb-6">
+      <input
+        id="username"
+        type="text"
+        placeholder="GitHubユーザー名を入力"
+        class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+
+      <button
+        id="searchButton"
+        class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+      >
+        検索
+      </button>
+    </div>
+
+    <p id="message" class="text-red-500 text-center mb-4"></p>
+
+    <section id="userInfo" class="hidden text-center">
+
+      <img
+        id="avatar"
+        src=""
+        alt="GitHub avatar"
+        class="w-32 h-32 rounded-full mx-auto mb-4"
+      >
+
+      <h2 id="name" class="text-xl font-bold mb-2"></h2>
+
+      <p id="bio" class="text-gray-600 mb-4"></p>
+
+      <p class="text-gray-700">
+        フォロワー：
+        <span id="followers" class="font-bold"></span>
+      </p>
+
+    </section>
+  </main>
+
+  <script>
+    const usernameInput = document.getElementById("username");
+    const searchButton = document.getElementById("searchButton");
+
+    const message = document.getElementById("message");
+    const userInfo = document.getElementById("userInfo");
+
+    const avatar = document.getElementById("avatar");
+    const name = document.getElementById("name");
+    const bio = document.getElementById("bio");
+    const followers = document.getElementById("followers");
+
+    searchButton.addEventListener("click", async () => {
+      const username = usernameInput.value.trim();
+
+      message.textContent = "";
+      userInfo.classList.add("hidden");
+
+      if (!username) {
+        message.textContent = "ユーザー名を入力してください";
+        return;
+      }
+
+      try {
+        const response = await fetch(
+          `https://api.github.com/users/${username}`
+        );
+
+        console.log("response:", response);
+
+        if (!response.ok) {
+          message.textContent = "ユーザーが見つかりませんでした";
+          return;
+        }
+
+        const data = await response.json();
+
+        console.log("取得したデータ:", data);
+
+        avatar.src = data.avatar_url;
+        name.textContent = data.name || "名前なし";
+        bio.textContent = data.bio || "自己紹介はありません";
+        followers.textContent = data.followers;
+
+        userInfo.classList.remove("hidden");
+
+      } catch (error) {
+        console.error("エラー:", error);
+        message.textContent = "通信に失敗しました";
+      }
+    });
+  </script>
+
+</body>
+</html>
